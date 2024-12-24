@@ -2,10 +2,14 @@ package com.poc.authservice.service;
 
 import com.poc.authservice.model.User;
 import com.poc.authservice.repo.UserRepository;
+import com.poc.authservice.util.JwtTokenUtil;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +24,9 @@ public class AuthService {
 
     @Autowired
     private  UserRepository userRepository;
+
+    @Autowired
+    JwtTokenUtil jwtTokenUtil;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -48,14 +55,27 @@ public class AuthService {
     }
 
     private String generateToken(User user) {
-        byte[] key = Base64.getDecoder().decode(jwtSecret);
+        Key key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecret));
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("codiceAbi", user.getCodiceAbi())
                 .claim("ruolo", user.getRuolo())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(SignatureAlgorithm.HS512, key)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
+    }
+
+    public ResponseEntity<Boolean> validateToken(String authHeader) {
+        if (authHeader==null || !authHeader.startsWith("Bearer ")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+        }
+        String token = authHeader.substring(7);
+        boolean isValid = jwtTokenUtil.validateToken(token);
+        if (isValid){
+            return ResponseEntity.ok(true);
+        }else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+        }
     }
 }
