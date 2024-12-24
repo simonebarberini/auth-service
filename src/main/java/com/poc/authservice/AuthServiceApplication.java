@@ -1,4 +1,4 @@
-package com.poc.auth_service;
+package com.poc.authservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
