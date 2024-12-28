@@ -1,5 +1,6 @@
 package com.poc.authservice.controller;
 
+import com.poc.authservice.model.AuthResponse;
 import com.poc.authservice.model.User;
 import com.poc.authservice.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,9 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password, @RequestParam String codiceAbi) {
-        return authService.authenticate(username, password, codiceAbi);
+    public ResponseEntity<AuthResponse> login(@RequestParam String username, @RequestParam String password, @RequestParam String codiceAbi) {
+         AuthResponse response =  authService.authenticate(username, password, codiceAbi);
+         return  new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/createUser")
@@ -28,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/validateToken")
-    public ResponseEntity<Boolean> validateToken(@RequestHeader("Authorization") String authHeader, HttpResponse httpResponse){
+    public ResponseEntity<AuthResponse> validateToken(@RequestHeader("Authorization") String authHeader){
         return authService.validateToken(authHeader);
     }
 }

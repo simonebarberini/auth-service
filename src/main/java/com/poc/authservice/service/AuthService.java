@@ -1,5 +1,6 @@
 package com.poc.authservice.service;
 
+import com.poc.authservice.model.AuthResponse;
 import com.poc.authservice.model.User;
 import com.poc.authservice.repo.UserRepository;
 import com.poc.authservice.util.JwtTokenUtil;
@@ -41,10 +42,16 @@ public class AuthService {
 
 
 
-    public String authenticate(String username, String password, String codiceAbi) {
+    public AuthResponse authenticate(String username, String password, String codiceAbi) {
         Optional<User> user = userRepository.findByUsernameAndCodiceAbi(username, codiceAbi);
         if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
-            return generateToken(user.get());
+            AuthResponse response = new AuthResponse();
+            response.setUsername(username);
+            //response.setRuolo(); da aggiungere in fase di creazione dell'utente
+            response.setCodiceAbi(codiceAbi);
+            response.setToken(generateToken(user.get()));
+            return response;
+
         }
         throw new RuntimeException("Credenziali non valide");
     }
@@ -66,16 +73,18 @@ public class AuthService {
                 .compact();
     }
 
-    public ResponseEntity<Boolean> validateToken(String authHeader) {
+    public ResponseEntity<AuthResponse> validateToken(String authHeader) {
         if (authHeader==null || !authHeader.startsWith("Bearer ")){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+            AuthResponse response = new AuthResponse();
+            response.setAtuht(false);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         String token = authHeader.substring(7);
-        boolean isValid = jwtTokenUtil.validateToken(token);
-        if (isValid){
-            return ResponseEntity.ok(true);
+        AuthResponse response = jwtTokenUtil.validateToken(token);
+        if (response.isAtuht()){
+            return ResponseEntity.ok(response);
         }else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
 }

@@ -1,11 +1,13 @@
 package com.poc.authservice.util;
 
+import com.poc.authservice.model.AuthResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -28,12 +30,18 @@ public class JwtTokenUtil {
                 .getBody();
     }
 
-    public boolean validateToken(String token){
+    public AuthResponse validateToken(String token){
         try {
             Claims claims = extractClaims(token);
-            return true;
+            AuthResponse response = new AuthResponse();
+            response.setAtuht(true);
+            response.setRuolo(claims.get("ruolo",String.class));
+            response.setCodiceAbi(claims.get("codiceAbi", String.class));
+            response.setToken(token);
+            response.setUsername(claims.getSubject());
+            return response;
         }catch (JwtException | IllegalArgumentException e){
-            return false;
+            return new AuthResponse(null, null, null, null, false);
         }
     }
 }
