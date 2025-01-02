@@ -30,18 +30,28 @@ public class JwtTokenUtil {
                 .getBody();
     }
 
-    public AuthResponse validateToken(String token){
+//    public AuthResponse validateToken(String token){
+//        try {
+//            Claims claims = extractClaims(token);
+//            AuthResponse response = new AuthResponse();
+//            response.setAtuht(true);
+//            response.setRuolo(claims.get("ruolo",String.class));
+//            response.setCodiceAbi(claims.get("codiceAbi", String.class));
+//            response.setToken(token);
+//            response.setUsername(claims.getSubject());
+//            return response;
+//        }catch (JwtException | IllegalArgumentException e){
+//            return new AuthResponse(null, null, null, null, false);
+//        }
+//    }
+
+
+    public boolean validateToken(String token){
         try {
             Claims claims = extractClaims(token);
-            AuthResponse response = new AuthResponse();
-            response.setAtuht(true);
-            response.setRuolo(claims.get("ruolo",String.class));
-            response.setCodiceAbi(claims.get("codiceAbi", String.class));
-            response.setToken(token);
-            response.setUsername(claims.getSubject());
-            return response;
+            return true;
         }catch (JwtException | IllegalArgumentException e){
-            return new AuthResponse(null, null, null, null, false);
+            return false;
         }
     }
 }

@@ -30,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/validateToken")
-    public ResponseEntity<AuthResponse> validateToken(@RequestHeader("Authorization") String authHeader){
+    public ResponseEntity<Boolean> validateToken(@RequestHeader("Authorization") String authHeader){
         return authService.validateToken(authHeader);
     }
 }

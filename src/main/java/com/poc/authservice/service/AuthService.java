@@ -73,18 +73,16 @@ public class AuthService {
                 .compact();
     }
 
-    public ResponseEntity<AuthResponse> validateToken(String authHeader) {
+    public ResponseEntity<Boolean> validateToken(String authHeader) {
         if (authHeader==null || !authHeader.startsWith("Bearer ")){
-            AuthResponse response = new AuthResponse();
-            response.setAtuht(false);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
         }
         String token = authHeader.substring(7);
-        AuthResponse response = jwtTokenUtil.validateToken(token);
-        if (response.isAtuht()){
-            return ResponseEntity.ok(response);
+        boolean isValid = jwtTokenUtil.validateToken(token);
+        if (isValid){
+            return ResponseEntity.ok(true);
         }else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
         }
     }
 }
